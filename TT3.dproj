@@ -101,7 +101,7 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="MqttClient1.pas">
-            <Form>Form1</Form>
+            <Form>FMqtt</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="Mqtt.pas">

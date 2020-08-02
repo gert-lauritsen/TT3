@@ -1,7 +1,7 @@
-object Form1: TForm1
+object FMqtt: TFMqtt
   Left = 0
   Top = 0
-  Caption = 'Form1'
+  Caption = 'Mqtt'
   ClientHeight = 660
   ClientWidth = 1313
   Color = clBtnFace
@@ -12,6 +12,7 @@ object Form1: TForm1
   Font.Style = []
   OldCreateOrder = False
   OnCreate = FormCreate
+  OnResize = FormResize
   PixelsPerInch = 96
   TextHeight = 13
   object Panel2: TPanel
@@ -21,8 +22,7 @@ object Form1: TForm1
     Height = 144
     Align = alBottom
     TabOrder = 0
-    ExplicitTop = 329
-    ExplicitWidth = 1285
+    ExplicitTop = 522
     object Label1: TLabel
       Left = 16
       Top = 6
@@ -110,15 +110,23 @@ object Form1: TForm1
         TabOrder = 1
         Text = '1883'
       end
-      object Button1: TButton
+      object BConnect: TButton
         Left = 169
         Top = 16
         Width = 120
         Height = 65
         Caption = 'Connect'
         TabOrder = 2
-        OnClick = Button1Click
+        OnClick = BConnectClick
       end
+    end
+    object Memo1: TMemo
+      Left = 277
+      Top = 64
+      Width = 500
+      Height = 73
+      TabOrder = 6
+      Visible = False
     end
   end
   object sg: TStringGrid

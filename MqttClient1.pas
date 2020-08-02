@@ -4,10 +4,10 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Grids, Vcl.StdCtrls, Vcl.ExtCtrls;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Grids, Vcl.StdCtrls, Vcl.ExtCtrls, inifiles;
 
 type
-  TForm1 = class(TForm)
+  TFMqtt = class(TForm)
     Panel2: TPanel;
     cbTopic: TComboBox;
     EMsg: TEdit;
@@ -21,20 +21,25 @@ type
     EPort: TEdit;
     Label2: TLabel;
     Label3: TLabel;
-    Button1: TButton;
+    BConnect: TButton;
+    Memo1: TMemo;
     procedure FormCreate(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
+    procedure BConnectClick(Sender: TObject);
     procedure BsubClick(Sender: TObject);
     procedure BunsubClick(Sender: TObject);
     procedure BpublishClick(Sender: TObject);
+    procedure FormResize(Sender: TObject);
   private
+    inif: Tinifile;
+    Connected: boolean;
     Procedure Event(Topic,Param: String);
+    Procedure Log(Param: String);
   public
     { Public declarations }
   end;
 
 var
-  Form1: TForm1;
+  FMqtt: TFMqtt;
 
 implementation
 
@@ -42,27 +47,33 @@ implementation
 
 uses Mqtt;
 
-procedure TForm1.BpublishClick(Sender: TObject);
+procedure TFMqtt.BpublishClick(Sender: TObject);
 begin
- Mqttmodule.Publish(cbtopic.Text,Emsg.Text);
+  Mqttmodule.Publish(cbtopic.Text,Emsg.Text);
 end;
 
-procedure TForm1.BsubClick(Sender: TObject);
+procedure TFMqtt.BsubClick(Sender: TObject);
 begin
   Mqttmodule.Subscripe(cbtopic.Text);
 end;
 
-procedure TForm1.BunsubClick(Sender: TObject);
+procedure TFMqtt.BunsubClick(Sender: TObject);
 begin
   Mqttmodule.UnSubscripe(cbtopic.Text);
 end;
 
-procedure TForm1.Button1Click(Sender: TObject);
+procedure TFMqtt.BConnectClick(Sender: TObject);
 begin
- Mqttmodule.Connect(Eurl.Text,strtoint(Eport.Text));
+ if not Connected then begin
+  Mqttmodule.Connect(Eurl.Text,strtoint(Eport.Text));
+  inif.WriteString('General','URL',Eurl.Text);
+ end
+ else begin
+  Mqttmodule.Disconnect;
+ end;
 end;
 
-procedure TForm1.Event(Topic, Param: String);
+procedure TFMqtt.Event(Topic, Param: String);
 var row,i: integer;
     fundettopic: boolean;
 begin
@@ -80,15 +91,42 @@ begin
 
 end;
 
-procedure TForm1.FormCreate(Sender: TObject);
+procedure TFMqtt.FormCreate(Sender: TObject);
 
 begin
+  inif:= TIniFile.Create( ChangeFileExt( Application.ExeName, '.INI' ) );
+  Eurl.Text:=inif.ReadString('General','URL','');
   sg.Cells[0,0]:='#';
   sg.Cells[1,0]:='Time';
   sg.Cells[2,0]:='Topic';
   sg.Cells[3,0]:='Message';
   Mqttmodule:= TMqttmodule.Create(self);
   Mqttmodule.OnEvent:=Event;
+  Mqttmodule.OnLog:=Log;
+end;
+
+procedure TFMqtt.FormResize(Sender: TObject);
+var row,i, SGwidth: integer;
+begin
+  for i := 0 to 2 do SGwidth:=SGwidth+sg.ColWidths[i];
+  if (SGwidth+sg.ColWidths[3])<FMqtt.Width then begin
+    sg.ColWidths[3]:=FMqtt.Width-SGwidth;
+  end;
+end;
+
+procedure TFMqtt.Log(Param: String);
+begin
+ memo1.Lines.Add(param);
+ if pos('Connected',Param)>0 then begin
+   Connected:=true;
+   BConnect.Caption:='Disconnect';
+ end;
+
+ if pos('Disconnect',Param)>0 then begin
+   Connected:=False;
+   BConnect.Caption:='Connect';
+ end;
+
 end;
 
 end.
