@@ -23,17 +23,20 @@ type
     Label3: TLabel;
     BConnect: TButton;
     Memo1: TMemo;
+    Button1: TButton;
     procedure FormCreate(Sender: TObject);
     procedure BConnectClick(Sender: TObject);
     procedure BsubClick(Sender: TObject);
     procedure BunsubClick(Sender: TObject);
     procedure BpublishClick(Sender: TObject);
     procedure FormResize(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
   private
     inif: Tinifile;
     Connected: boolean;
     Procedure Event(Topic,Param: String);
     Procedure Log(Param: String);
+    procedure InsertRows(RowIndex, RCount: LongInt);
   public
     { Public declarations }
   end;
@@ -62,6 +65,16 @@ begin
   Mqttmodule.UnSubscripe(cbtopic.Text);
 end;
 
+procedure TFMqtt.Button1Click(Sender: TObject);
+var i: integer;
+begin
+  sg.RowCount:=1;
+  sg.Cells[0,0]:='#';
+  sg.Cells[1,0]:='Time';
+  sg.Cells[2,0]:='Topic';
+  sg.Cells[3,0]:='Message';
+end;
+
 procedure TFMqtt.BConnectClick(Sender: TObject);
 begin
  if not Connected then begin
@@ -73,14 +86,24 @@ begin
  end;
 end;
 
+
+procedure TFMqtt.InsertRows(RowIndex, RCount : LongInt);
+var
+  i: LongInt;
+begin
+  sg.RowCount := sg.RowCount + RCount;
+  for i := sg.RowCount - 1 downto RowIndex do sg.Rows[i] := sg.Rows[i - RCount];
+end;
+
 procedure TFMqtt.Event(Topic, Param: String);
 var row,i: integer;
     fundettopic: boolean;
 begin
-  row:=sg.RowCount;   fundettopic:=false;
-  sg.RowCount:=row+1;
-  //sg.row
-  sg.Cells[0,row]:=inttostr(sg.RowCount);
+  row:=sg.RowCount;
+  InsertRows(row,1);
+  //sg.RowCount:=row+1;
+  fundettopic:=false;
+  sg.Cells[0,row]:=inttostr(sg.RowCount-1);
   sg.Cells[1,row]:=formatdatetime('hh:nn:ss.zzz',now);
   sg.Cells[2,row]:=topic;
   sg.Cells[3,row]:=param;

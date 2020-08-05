@@ -121,12 +121,21 @@ object FMqtt: TFMqtt
       end
     end
     object Memo1: TMemo
-      Left = 277
+      Left = 493
       Top = 64
       Width = 500
       Height = 73
       TabOrder = 6
       Visible = False
+    end
+    object Button1: TButton
+      Left = 144
+      Top = 51
+      Width = 75
+      Height = 25
+      Caption = 'Clear'
+      TabOrder = 7
+      OnClick = Button1Click
     end
   end
   object sg: TStringGrid
